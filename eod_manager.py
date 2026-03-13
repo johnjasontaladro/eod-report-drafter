@@ -1,10 +1,35 @@
 import os
+import re
 import argparse
 from datetime import datetime
 from pathlib import Path
 
 # Explicitly set the report directory relative to your home folder
 BASE_DIR = Path.home() / ".claude/skills/eod-report-drafter/reports"
+
+MAX_CONTENT_BYTES = 100 * 1024 * 1024  # 100 MB
+
+PROJECT_NAME_RE = re.compile(r'^[a-zA-Z0-9_-]+$')
+
+
+def validate_project_name(project: str) -> None:
+    """Reject project names that contain path traversal or glob characters."""
+    if not PROJECT_NAME_RE.match(project):
+        raise SystemExit(
+            f"ERROR: Invalid project name '{project}'. "
+            "Only letters, numbers, hyphens, and underscores are allowed."
+        )
+
+
+def assert_within_base_dir(path: Path) -> None:
+    """Hard backstop: raise if resolved path escapes BASE_DIR."""
+    resolved = path.resolve()
+    base_resolved = BASE_DIR.resolve()
+    if not str(resolved).startswith(str(base_resolved) + os.sep):
+        raise SystemExit(
+            f"ERROR: Resolved path '{resolved}' is outside the reports directory."
+        )
+
 
 def get_today_dir():
     today = datetime.now().strftime("%Y-%m-%d")
@@ -13,16 +38,24 @@ def get_today_dir():
     return path
 
 def save_report(project, content):
+    validate_project_name(project)
+
+    if len(content.encode()) > MAX_CONTENT_BYTES:
+        raise SystemExit("ERROR: Content exceeds the 100 MB maximum allowed size.")
+
     target_dir = get_today_dir()
-    
+
     # Logic: eod-report-PROJECT_NAME-RUNNING_NUMBER.md
     existing_files = list(target_dir.glob(f"eod-report-{project}-*.md"))
     next_num = len(existing_files) + 1
-    
+
     filename = f"eod-report-{project}-{next_num:02d}.md"
     file_path = target_dir / filename
-    
-    with open(file_path, "w") as f:
+
+    assert_within_base_dir(file_path)
+
+    fd = os.open(file_path, os.O_CREAT | os.O_WRONLY | os.O_EXCL, 0o600)
+    with os.fdopen(fd, "w") as f:
         f.write(content.strip())
     return file_path
 
