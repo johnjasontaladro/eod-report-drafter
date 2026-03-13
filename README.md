@@ -6,10 +6,11 @@ An automated skill for drafting, storing, and consolidating End-of-Day (EOD) rep
 
 ## 🚀 How it Works
 
-- **Drafting:** You tell your AI assistant what you worked on.
+- **Default behavior:** Invoke `/eod-report-drafter` with no context and the assistant reads your current AI session to draft a report automatically — no input required.
+- **Optional context:** You can provide additional details (JIRA tickets, notes, project names) to supplement or focus the report.
 - **Automation:** The assistant drafts the report and runs `eod_manager.py` to save it.
 - **Organization:** Reports are saved to `~/.claude/skills/eod-report-drafter/reports/<yyyy-mm-dd>/`.
-- **Consolidation:** At the end of the day, the assistant retrieves all snippets and generates a single, polished report for management.
+- **Consolidation:** At the end of the day, the assistant retrieves all saved snippets and generates a single, polished report for management.
 
 ---
 
@@ -57,11 +58,51 @@ python3 test_eod_manager.py
 
 ### Individual Task Reports
 
-Tell your assistant what you've done:
+**No context — reads the current session:**
 
-> "Invoke eod-report-drafter for JIRA-101. Project: Nexus. I finished the API integration."
+> "/eod-report-drafter"
 
-The assistant will draft the report and run the save command automatically.
+The assistant reads your current AI session and drafts a report from whatever you've been working on.
+
+**With a project name:**
+
+> "/eod-report-drafter Project: Nexus"
+
+Scopes the report to a specific project without requiring you to describe the work.
+
+**With notes or a task description:**
+
+> "/eod-report-drafter I refactored the auth middleware to use JWT refresh tokens."
+
+Uses your description directly as the basis for the report.
+
+**With a JIRA ticket and full context:**
+
+> "/eod-report-drafter JIRA-101. Project: Nexus. I finished the API integration and added retry logic."
+
+The assistant uses all provided details to produce a detailed, ticket-linked report.
+
+**With Jira MCP — auto-reads the ticket title:**
+
+If the AI has access to a Jira MCP server, you can just pass the ticket number:
+
+> "/eod-report-drafter JIRA-101"
+
+The assistant fetches the ticket title directly from Jira and uses it to produce an accurate, well-named report — no need to describe the work yourself.
+
+**With Jira MCP — pulls in your ticket comment:**
+
+> "/eod-report-drafter JIRA-101. Use my latest comment on the ticket."
+
+The assistant reads your most recent comment on the ticket and uses it as the basis for the report, so any progress note you already wrote in Jira becomes your EOD entry automatically.
+
+**With today's git commits:**
+
+> "/eod-report-drafter Include my commits from today."
+
+The assistant runs `git log` to fetch commits made today, then drafts a report from the commit messages — useful for capturing work done outside of the current AI session.
+
+In every case, the assistant drafts the report and runs the save command automatically.
 
 ### Final Consolidation
 
