@@ -1,6 +1,5 @@
 import os
 import re
-import stat
 import argparse
 from datetime import datetime
 from pathlib import Path
@@ -55,10 +54,9 @@ def save_report(project, content):
 
     assert_within_base_dir(file_path)
 
-    with open(file_path, "w") as f:
+    fd = os.open(file_path, os.O_CREAT | os.O_WRONLY | os.O_EXCL, 0o600)
+    with os.fdopen(fd, "w") as f:
         f.write(content.strip())
-
-    os.chmod(file_path, stat.S_IRUSR | stat.S_IWUSR)  # 0o600 — owner read/write only
     return file_path
 
 def consolidate():
