@@ -16,12 +16,16 @@ An automated skill for drafting, storing, and consolidating End-of-Day (EOD) rep
 
 ## 🛠️ Installation
 
-### 1. Clone directly into the skills directory
+This skill works with **Claude Code** (via `~/.claude/skills/`) and **GitHub Copilot in VS Code** (synced via the Compound plugin). Steps 1 and 2 are required for all users. Step 3 is only needed if you use GitHub Copilot in VS Code.
+
+### 1. Clone into the Claude skills directory
 
 ```bash
 mkdir -p ~/.claude/skills
 git clone https://github.com/johnjasontaladro/eod-report-drafter.git ~/.claude/skills/eod-report-drafter
 ```
+
+This makes the skill available to Claude Code immediately — no further Claude-specific setup needed.
 
 ### 2. Make the script executable
 
@@ -29,24 +33,36 @@ git clone https://github.com/johnjasontaladro/eod-report-drafter.git ~/.claude/s
 chmod +x ~/.claude/skills/eod-report-drafter/eod_manager.py
 ```
 
+### 3. Sync to GitHub Copilot (VS Code)
+
+If you use GitHub Copilot in VS Code, sync the skill using the [`compound-plugin` CLI](https://github.com/EveryInc/compound-engineering-plugin):
+
+```bash
+bunx @every-env/compound-plugin sync --target copilot
+```
+
+This reads all skills in `~/.claude/skills/` and converts them to Copilot-compatible prompts under `~/.copilot/skills/`. After syncing, the `/eod-report-drafter` command becomes available in GitHub Copilot Chat.
+
+> **Prerequisites:** [Bun](https://bun.sh) must be installed. Re-run this command any time you update the skill.
+
 ---
 
 ## 🔄 Updating
 
-When changes are pushed to the repo, pull them into your local installation:
+Pull the latest changes:
 
 ```bash
 cd ~/.claude/skills/eod-report-drafter
 git pull
 ```
 
-Then re-sync to GitHub Copilot so the updated skill is picked up:
+If you use GitHub Copilot in VS Code, re-sync:
 
 ```bash
 bunx @every-env/compound-plugin sync --target copilot
 ```
 
-If the update changed `eod_manager.py`, run the test suite to confirm everything still works:
+If `eod_manager.py` changed, run the test suite to confirm everything still works:
 
 ```bash
 python3 test_eod_manager.py
@@ -84,7 +100,7 @@ The assistant uses all provided details to produce a detailed, ticket-linked rep
 
 **With Jira MCP — auto-reads the ticket title:**
 
-If the AI has access to a Jira MCP server, you can just pass the ticket number:
+If the AI has access to a Jira MCP server, passing just a ticket number works differently from the plain JIRA ticket example above — the assistant actively fetches the ticket title and description from Jira rather than relying on what you type:
 
 > "/eod-report-drafter JIRA-101"
 
@@ -161,20 +177,6 @@ After updating, run the suite locally before pushing. CI will also run it automa
 - **Running Numbers:** The script checks the project name and automatically increments the report number (e.g., `-01`, `-02`) to prevent overwriting.
 - **Perspective:** All reports are written in the first person ("I").
 - **Tone:** High-level and business-friendly, avoiding unnecessary technical jargon unless specified.
-
----
-
-## 🤖 GitHub Copilot
-
-Sync the skill to GitHub Copilot using the [`compound-plugin` CLI](https://github.com/EveryInc/compound-engineering-plugin):
-
-```bash
-bunx @every-env/compound-plugin sync --target copilot
-```
-
-This reads all skills installed at `~/.claude/skills/` and converts them to Copilot-compatible prompts, writing them to `~/.copilot/skills/`. After syncing, the `/eod-report-drafter` command becomes available in GitHub Copilot Chat.
-
-> **Prerequisites:** [Bun](https://bun.sh) must be installed. The skill must be installed at `~/.claude/skills/eod-report-drafter/` (see Installation above).
 
 ---
 
