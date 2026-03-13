@@ -2,3 +2,5 @@
 .github/agents/
 .github/*config.json
 docs/
+__pycache__/
+*.pyc
