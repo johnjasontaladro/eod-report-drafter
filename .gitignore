@@ -1,2 +1,4 @@
-.github/
+.github/skills/
+.github/agents/
+.github/*config.json
 docs/

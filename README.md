@@ -56,12 +56,39 @@ The assistant reads all saved snippets from today and creates a unified, profess
 ~/.claude/skills/eod-report-drafter/
 ├── SKILL.md
 ├── eod_manager.py
+├── test_eod_manager.py
 └── reports/
     └── 2026-03-14/
         ├── eod-report-Nexus-01.md
         ├── eod-report-Nexus-02.md
         └── eod-report-Portal-01.md
 ```
+
+---
+
+## 🧪 Tests
+
+The test suite (`test_eod_manager.py`) covers input validation, path-sandbox enforcement, file permission hardening, and the content-size cap.
+
+### Run tests locally
+
+```bash
+cd ~/.claude/skills/eod-report-drafter
+python3 test_eod_manager.py
+```
+
+Every line should print `PASS`. A non-zero exit code means at least one test failed.
+
+### When to update the tests
+
+When you change `eod_manager.py`, update `test_eod_manager.py` to cover any new behaviour:
+
+1. **New validation rule** (e.g., relaxing the project-name regex) → add a test case that asserts both the new allowed value passes and formerly-allowed values still pass.
+2. **New CLI argument** → add tests for its validation and happy-path behaviour.
+3. **Changed error message** → update the string assertion in the relevant test case.
+4. **New file-system operation** → add a test that writes a fixture, asserts the expected outcome, then cleans it up.
+
+After updating, run the suite locally before pushing. CI will also run it automatically on every push and pull request.
 
 ---
 
