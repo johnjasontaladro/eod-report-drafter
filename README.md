@@ -30,6 +30,29 @@ chmod +x ~/.claude/skills/eod-report-drafter/eod_manager.py
 
 ---
 
+## 🔄 Updating
+
+When changes are pushed to the repo, pull them into your local installation:
+
+```bash
+cd ~/.claude/skills/eod-report-drafter
+git pull
+```
+
+Then re-sync to GitHub Copilot so the updated skill is picked up:
+
+```bash
+bunx @every-env/compound-plugin sync --target copilot
+```
+
+If the update changed `eod_manager.py`, run the test suite to confirm everything still works:
+
+```bash
+python3 test_eod_manager.py
+```
+
+---
+
 ## 📖 Usage
 
 ### Individual Task Reports
